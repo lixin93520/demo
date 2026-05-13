@@ -711,7 +711,8 @@
     <div id="videoModal" class="modal">
         <div class="modal-content">
             <h3>视频绑定</h3>
-            <input type="url" placeholder="视频链接" id="video-link" required>
+            <input type="text" placeholder="Video ID（必填）" id="video-link" required>
+            <input type="date" placeholder="发布日期（选填）" id="publish-date">
             <div class="modal-footer">
                 <button class="btn secondary" onclick="closeModal()">取消</button>
                 <button class="btn primary" onclick="confirmVideoBind()">确认</button>
