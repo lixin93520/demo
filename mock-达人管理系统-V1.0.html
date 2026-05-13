@@ -110,8 +110,10 @@
                         <h3>达人管理 - 全部</h3>
                         <div class="quick-actions">
                             <button class="btn secondary" onclick="exportData()">导出</button>
-                            <button class="btn secondary" onclick="transferData()">一键交接</button>
                         </div>
+                    </div>
+                    <div class="auto-task-tip" style="background:#e3f2fd; color:#1976d2; padding:8px 15px; margin:10px 0; border-radius:4px; font-size:13px;">
+                        ℹ️ 每天北京时间9点自动执行状态流转
                     </div>
                     <div class="toolbar">
                         <input type="text" placeholder="达人名称（用@批量查询）">
@@ -696,7 +698,7 @@
     <div id="sampleModal" class="modal">
         <div class="modal-content">
             <h3>寄样绑定</h3>
-            <input type="text" placeholder="快递单号" id="tracking-number" required>
+            <input type="text" placeholder="订单号" id="tracking-number" required>
             <input type="email" placeholder="Email" id="email">
             <input type="text" placeholder="电话号" id="phone">
             <input type="text" placeholder="WhatsApp" id="whatsapp">
