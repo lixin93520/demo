@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>达人样品管理系统 Mock v2.0</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: #f3f6fb; color: #283046; }
+        .layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 240px; background: #172031; color: #cfd8e6; padding: 24px 0; }
+        .sidebar h2 { margin: 0 24px 24px; color: #ffffff; font-size: 18px; }
+        .menu { list-style: none; margin: 0; padding: 0; }
+        .menu li { padding: 12px 24px; cursor: pointer; color: #cfd8e6; display: flex; align-items: center; }
+        .menu li:hover, .menu li.active { background: #1f2b41; color: #ffffff; }
+        .menu li span { margin-left: 12px; }
+        .main { flex: 1; display: flex; flex-direction: column; }
+        .topbar { background: #ffffff; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e8edf3; }
+        .topbar .title { font-size: 20px; font-weight: 600; color: #1f2a44; }
+        .topbar .tag { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; background: #eef4ff; color: #2a65f1; font-size: 14px; border-radius: 100px; }
+        .header-tabs { background: #ffffff; padding: 14px 24px; border-bottom: 1px solid #e8edf3; display: flex; gap: 12px; }
+        .tab-button { border: 1px solid #d7dee8; background: #f8fbff; color: #4f637d; padding: 10px 20px; border-radius: 100px; cursor: pointer; }
+        .tab-button.active { background: #2a65f1; color: #ffffff; border-color: #2a65f1; }
+        .panel { flex: 1; padding: 24px; }
+        .card { background: #ffffff; border: 1px solid #e8edf3; border-radius: 16px; padding: 20px; box-shadow: 0 6px 24px rgba(79, 104, 143, 0.08); }
+        .section-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+        .section-title h3 { margin: 0; font-size: 18px; color: #1f2a44; }
+        .quick-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { border: none; border-radius: 4px; padding: 10px 16px; font-size: 14px; cursor: pointer; }
+        .btn.primary { background: #2a65f1; color: #fff; }
+        .btn.secondary { background: #f5f7fb; color: #4f637d; }
+        .btn.danger { background: #f35b5b; color: #fff; }
+        .btn.search { width: 50%; }
+        .toolbar { margin: 20px 0 16px; display: grid; grid-template-columns: repeat(6, minmax(160px, 1fr)); gap: 12px; }
+        .toolbar input, .toolbar select { width: 100%; padding: 10px 12px; border: 1px solid #d7dee8; border-radius: 6px; background: #fbfdff; color: #374151; }
+        .toolbar .date-range { display: flex; gap: 8px; }
+        .table-wrap { overflow-x: auto; }
+        .pagination-bar { margin-top: 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 12px; padding: 14px 16px; border-top: 1px solid #e8edf3; background: #fbfdff; border-radius: 0 0 16px 16px; }
+        .pagination-summary { color: #5e6e89; font-size: 14px; }
+        .pagination-controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .page-btn { min-width: 34px; height: 34px; border: 1px solid #d7dee8; background: #ffffff; color: #4f637d; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        .page-btn.active { background: #2a65f1; border-color: #2a65f1; color: #ffffff; }
+        .page-ellipsis { color: #7b8da3; font-size: 14px; padding: 0 8px; }
+        .pagination-extra { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .pagination-extra select, .pagination-extra input { padding: 8px 10px; border: 1px solid #d7dee8; border-radius: 6px; background: #ffffff; color: #374151; min-width: 100px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 14px 12px; border-bottom: 1px solid #eef2f7; white-space: nowrap; }
+        th { text-align: left; font-weight: 600; color: #4f637d; background: #fafbff; }
+        tbody tr:hover { background: #f7f9ff; }
+        .status-pill { display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border-radius: 100px; font-size: 12px; min-width: 72px; }
+        .status-pending { background: #fff5e8; color: #d98232; }
+        .status-contacted { background: #e8f2ff; color: #3c6ef0; }
+        .status-sampled { background: #edf9f1; color: #2f9e4b; }
+        .status-blacklist { background: #fff1f1; color: #d94040; }
+        .tag-row { margin-bottom: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .tag-card { background: #eef4ff; border: 1px solid #d7e2ff; border-radius: 10px; padding: 12px 16px; min-width: 140px; }
+        .tag-card .label { display: block; font-size: 12px; color: #7b8da3; margin-bottom: 6px; }
+        .tag-card .value { font-size: 18px; font-weight: 700; color: #1f2a44; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(23, 32, 49, 0.62); justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { width: 420px; background: #ffffff; border-radius: 16px; padding: 24px; box-shadow: 0 18px 40px rgba(17, 43, 103, 0.18); }
+        .modal-content h3 { margin-top: 0; color: #1f2a44; }
+        .modal-content input { width: 100%; padding: 12px 14px; margin: 10px 0; border: 1px solid #d7dee8; border-radius: 8px; }
+        .field-hint { margin: -4px 0 8px; color: #7b8da3; font-size: 12px; line-height: 1.5; }
+        .rule-panel { margin: 12px 0; padding: 12px 14px; border: 1px solid #d7e2ff; border-radius: 8px; background: #f6f9ff; color: #4f637d; font-size: 13px; line-height: 1.7; }
+        .rule-panel strong { color: #1f2a44; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        .download-links { margin: 15px 0; }
+        .download-links a { display: block; color: #2a65f1; text-decoration: none; padding: 8px 0; }
+        .download-links a:hover { text-decoration: underline; }
+        .status-tip { background: #fff8e6; border: 1px solid #ffd591; border-radius: 4px; padding: 8px 12px; font-size: 12px; color: #d98232; margin-top: 8px; }
+        .multi-select { position: relative; }
+        .multi-select-trigger { cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .multi-select-dropdown { display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #d7dee8; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 100; max-height: 200px; overflow-y: auto; }
+        .multi-select-dropdown.active { display: block; }
+        .multi-select-item { padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .multi-select-item:hover { background: #f5f7fb; }
+        .log-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .log-table th, .log-table td { border: 1px solid #e8edf3; padding: 10px; text-align: left; }
+        .module-container { display: none; }
+        .module-container.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <h2>后台管理</h2>
+            <ul class="menu">
+                <li data-module="influencer" class="active" onclick="switchModule('influencer', this)"><span>达人管理</span></li>
+                <li data-module="sample" onclick="switchModule('sample', this)"><span>样品管理</span></li>
+                <li data-module="video" onclick="switchModule('video', this)"><span>视频管理</span></li>
+            </ul>
+        </aside>
+        <main class="main">
+            <div class="topbar">
+                <div>
+                    <div class="title">达人样品管理系统 Mock v2.0</div>
+                    <div style="margin-top: 6px; color: #7b8da3; font-size: 14px;">仿后台管理系统风格，展示达人建联、寄样和黑名单业务</div>
+                </div>
+            </div>
+            
+            <!-- 达人管理模块 -->
+            <div id="influencer-module" class="module-container active">
+                <div class="header-tabs">
+                    <button class="tab-button active" onclick="showInfluencerTab('all', this)">全部</button>
+                    <button class="tab-button" onclick="showInfluencerTab('pending', this)">待建联</button>
+                    <button class="tab-button" onclick="showInfluencerTab('contacted', this)">已联系</button>
+                    <button class="tab-button" onclick="showInfluencerTab('sampled', this)">已寄样</button>
+                    <button class="tab-button" onclick="showInfluencerTab('blacklist', this)">黑名单</button>
+                </div>
+                <div class="panel">
+                <div class="card" id="all">
+                    <div class="section-title">
+                        <h3>达人管理 - 全部</h3>
+                        <div class="quick-actions">
+                            <button class="btn secondary" onclick="exportData()">导出</button>
+                        </div>
+                    </div>
+                    <div class="auto-task-tip" style="background:#e3f2fd; color:#1976d2; padding:8px 15px; margin:10px 0; border-radius:4px; font-size:13px;">
+                        ℹ️ 每天北京时间9点自动执行状态流转
+                    </div>
+                    <div class="toolbar">
+                        <input type="text" placeholder="达人名称（用@批量查询）">
+                        <div class="multi-select">
+                            <div class="multi-select-trigger" onclick="toggleMultiSelect(this, 'contact-all')">
+                                <span>建联人</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="multi-select-dropdown" id="contact-all-dropdown">
+                                <div class="multi-select-item"><input type="checkbox"> BD1</div>
+                                <div class="multi-select-item"><input type="checkbox"> BD2</div>
+                                <div class="multi-select-item"><input type="checkbox"> BD3</div>
+                            </div>
+                        </div>
+                        <div class="multi-select">
+                            <div class="multi-select-trigger" onclick="toggleMultiSelect(this, 'status-all')">
+                                <span>状态</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="multi-select-dropdown" id="status-all-dropdown">
+                                <div class="multi-select-item"><input type="checkbox"> 待建联</div>
+                                <div class="multi-select-item"><input type="checkbox"> 已联系</div>
+                                <div class="multi-select-item"><input type="checkbox"> 已寄样</div>
+                                <div class="multi-select-item"><input type="checkbox"> 黑名单</div>
+                            </div>
+                        </div>
+                        <div class="date-range">
+                            <select><option>建联时间</option><option>寄样时间</option></select>
+                            <input type="date">
+                            <span style="align-self:center;color:#7b8da3;">~</span>
+                            <input type="date">
+                        </div>
+                        <button class="btn primary" style="width: 100%;" onclick="filterData('all')">搜索</button>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox"></th>
+                                    <th>达人名称</th>
+                                    <th>状态</th>
+                                    <th>建联人</th>
+                                    <th>建联时间</th>
+                                    <th>GMV</th>
+                                    <th>均播量</th>
+                                    <th>履约率</th>
+                                    <th>寄样时间</th>
+                                    <th>订单号</th>
+                                    <th>Product Name</th>
+                                    <th>Video ID</th>
+                                    <th>状态提示</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>达人A</td>
+                                    <td><span class="status-pill status-pending">待建联</span></td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>¥50,000</td>
+                                    <td>12,500</td>
+                                    <td>85%</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td><button class="btn secondary" onclick="contactInfluencer()">联系</button> <button class="btn secondary" onclick="showLog()">日志</button></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>达人B</td>
+                                    <td><span class="status-pill status-contacted">已联系</span></td>
+                                    <td>BD1</td>
+                                    <td>2026-05-01</td>
+                                    <td>¥120,000</td>
+                                    <td>25,000</td>
+                                    <td>92%</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>距离14天回滚待建联还有4天</td>
+                                    <td>
+                                        <button class="btn secondary" onclick="sampleBind()">寄样绑定</button>
+                                        <button class="btn secondary" onclick="changeOwner('达人B', 'BD1')">变更建联人</button>
+                                        <button class="btn secondary" onclick="renameInfluencer('达人B')">变更名称</button>
+                                        <button class="btn danger" onclick="deleteInfluencer('达人B')">删除</button>
+                                        <button class="btn secondary" onclick="showLog()">日志</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>达人C</td>
+                                    <td><span class="status-pill status-sampled">已寄样</span></td>
+                                    <td>BD1</td>
+                                    <td>2026-04-20</td>
+                                    <td>¥85,000</td>
+                                    <td>18,000</td>
+                                    <td>78%</td>
+                                    <td>2026-04-25<br>2026-05-03</td>
+                                    <td>ORD-001<br>ORD-005</td>
+                                    <td>护肤品套装<br>精华液</td>
+                                    <td>-</td>
+                                    <td>距离30天黑名单还有14天</td>
+                                    <td>
+                                        <button class="btn secondary" onclick="videoBind()">视频绑定</button>
+                                        <button class="btn secondary" onclick="sampleBind()">寄样绑定</button>
+                                        <button class="btn danger" onclick="returnSample()">退样</button>
+                                        <button class="btn secondary" onclick="changeOwner('达人C', 'BD1')">变更建联人</button>
+                                        <button class="btn secondary" onclick="renameInfluencer('达人C')">变更名称</button>
+                                        <button class="btn danger" onclick="deleteInfluencer('达人C')">删除</button>
+                                        <button class="btn secondary" onclick="showLog()">日志</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>达人D</td>
+                                    <td><span class="status-pill status-sampled">已寄样</span></td>
+                                    <td>BD2</td>
+                                    <td>2026-04-15</td>
+                                    <td>¥200,000</td>
+                                    <td>45,000</td>
+                                    <td>88%</td>
+                                    <td>2026-04-18</td>
+                                    <td>ORD-002</td>
+                                    <td>彩妆套装</td>
+                                    <td>https://video.example.com/123<br>https://video.example.com/456</td>
+                                    <td>-</td>
+                                    <td>
+                                        <button class="btn secondary" onclick="videoBind()">视频绑定</button>
+                                        <button class="btn secondary" onclick="sampleBind()">寄样绑定</button>
+                                        <button class="btn danger" onclick="returnSample()">退样</button>
+                                        <button class="btn secondary" onclick="changeOwner('达人D', 'BD2')">变更建联人</button>
+                                        <button class="btn secondary" onclick="renameInfluencer('达人D')">变更名称</button>
+                                        <button class="btn danger" onclick="deleteInfluencer('达人D')">删除</button>
+                                        <button class="btn secondary" onclick="showLog()">日志</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>达人E</td>
+                                    <td><span class="status-pill status-blacklist">黑名单</span></td>
+                                    <td>BD2</td>
+                                    <td>2026-03-01</td>
+                                    <td>¥30,000</td>
+                                    <td>8,000</td>
+                                    <td>65%</td>
+                                    <td>2026-03-05</td>
+                                    <td>ORD-003</td>
+                                    <td>口红套装</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>
+                                        <button class="btn secondary" onclick="changeOwner('达人E', 'BD2')">变更建联人</button>
+                                        <button class="btn secondary" onclick="renameInfluencer('达人E')">变更名称</button>
+                                        <button class="btn danger" onclick="deleteInfluencer('达人E')">删除</button>
+                                        <button class="btn secondary" onclick="showLog()">日志</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" disabled></td>
+                                    <td>达人G</td>
+                                    <td><span class="status-pill status-pending">待建联</span></td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>¥75,000</td>
+                                    <td>18,000</td>
+                                    <td>88%</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>距离14天解禁还有7天（BD1不可联系）</td>
+                                    <td><span style="color:#999;">（BD1不可联系）</span> <button class="btn secondary" onclick="showLog()">日志</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-bar" data-tab="all">
+                        <div class="pagination-summary">共 <strong>6</strong> 条</div>
+                        <div class="pagination-controls"></div>
+                        <div class="pagination-extra">
+                            <select>
+                                <option value="50">50条/页</option>
+                                <option value="100">100条/页</option>
+                                <option value="200">200条/页</option>
+                            </select>
+                            <span>前往</span>
+                            <input type="number" min="1" placeholder="页码">
+                            <button class="btn secondary">确定</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" id="pending" style="display:none;">
+                    <div class="section-title">
+                        <h3>达人管理 - 待建联</h3>
+                        <div class="quick-actions">
+                            <button class="btn primary" onclick="importInfluencer()">导入达人</button>
+                            <button class="btn secondary" onclick="contactInfluencer()">联系</button>
+                            <button class="btn secondary" onclick="exportData()">导出</button>
+                        </div>
+                    </div>
+                    <div class="toolbar">
+                        <input type="text" placeholder="达人名称">
+                        <button class="btn primary search" onclick="filterData('pending')">搜索</button>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox"></th>
+                                    <th>达人名称</th>
+                                    <th>GMV</th>
+                                    <th>均播量</th>
+                                    <th>履约率</th>
+                                    <th>状态提示</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>达人A</td>
+                                    <td>¥50,000</td>
+                                    <td>12,500</td>
+                                    <td>85%</td>
+                                    <td>-</td>
+                                    <td><button class="btn secondary" onclick="contactInfluencer()">联系</button></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>达人F</td>
+                                    <td>¥42,000</td>
+                                    <td>10,500</td>
+                                    <td>80%</td>
+                                    <td>-</td>
+                                    <td><button class="btn secondary" onclick="contactInfluencer()">联系</button></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" disabled></td>
+                                    <td>达人G</td>
+                                    <td>¥75,000</td>
+                                    <td>18,000</td>
+                                    <td>88%</td>
+                                    <td>距离14天解禁还有7天（BD1不可联系）</td>
+                                    <td><span style="color:#999;">（BD1不可联系）</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-bar" data-tab="pending">
+                        <div class="pagination-summary">共 <strong>3</strong> 条</div>
+                        <div class="pagination-controls"></div>
+                        <div class="pagination-extra">
+                            <select>
+                                <option value="50">50条/页</option>
+                                <option value="100">100条/页</option>
+                                <option value="200">200条/页</option>
+                            </select>
+                            <span>前往</span>
+                            <input type="number" min="1" placeholder="页码">
+                            <button class="btn secondary">确定</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" id="contacted" style="display:none;">
+                    <div class="section-title">
+                        <h3>达人管理 - 已联系</h3>
+                        <div class="quick-actions">
+                            <button class="btn secondary" onclick="exportData()">导出</button>
+                            <button class="btn primary" onclick="importSample()">样品导入</button>
+                        </div>
+                    </div>
+                    <div class="toolbar">
+                        <input type="text" placeholder="达人名称">
+                        <div class="multi-select">
+                            <div class="multi-select-trigger" onclick="toggleMultiSelect(this, 'contact-contacted')">
+                                <span>建联人</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="multi-select-dropdown" id="contact-contacted-dropdown">
+                                <div class="multi-select-item"><input type="checkbox"> BD1</div>
+                                <div class="multi-select-item"><input type="checkbox"> BD2</div>
+                                <div class="multi-select-item"><input type="checkbox"> BD3</div>
+                            </div>
+                        </div>
+                        <div class="date-range"><input type="date"><span style="align-self:center;color:#7b8da3;">~</span><input type="date"></div>
+                        <button class="btn primary search" onclick="filterData('contacted')">搜索</button>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox"></th>
+                                    <th>达人名称</th>
+                                    <th>建联人</th>
+                                    <th>建联时间</th>
+                                    <th>GMV</th>
+                                    <th>均播量</th>
+                                    <th>履约率</th>
+                                    <th>状态提示</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>达人B</td>
+                                    <td>BD1</td>
+                                    <td>2026-05-01</td>
+                                    <td>¥120,000</td>
+                                    <td>25,000</td>
+                                    <td>92%</td>
+                                    <td>距离14天回滚待建联还有4天</td>
+                                    <td>
+                                        <button class="btn secondary" onclick="sampleBind()">寄样绑定</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-bar" data-tab="contacted">
+                        <div class="pagination-summary">共 <strong>1</strong> 条</div>
+                        <div class="pagination-controls"></div>
+                        <div class="pagination-extra">
+                            <select>
+                                <option value="50">50条/页</option>
+                                <option value="100">100条/页</option>
+                                <option value="200">200条/页</option>
+                            </select>
+                            <span>前往</span>
+                            <input type="number" min="1" placeholder="页码">
+                            <button class="btn secondary">确定</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" id="sampled" style="display:none;">
+                    <div class="section-title">
+                        <h3>达人管理 - 已寄样</h3>
+                        <div class="quick-actions">
+                            <button class="btn secondary" onclick="exportData()">导出</button>
+                        </div>
+                    </div>
+                    <div class="toolbar">
+                        <input type="text" placeholder="达人名称">
+                        <select><option>建联人</option><option>BD1</option><option>BD2</option></select>
+                        <div class="date-range">
+                            <select><option>寄样时间</option><option>建联时间</option></select>
+                            <input type="date">
+                            <span style="align-self:center;color:#7b8da3;">~</span>
+                            <input type="date">
+                        </div>
+                        <button class="btn primary search" onclick="filterData('sampled')">搜索</button>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>达人名称</th>
+                                    <th>建联人</th>
+                                    <th>寄样时间</th>
+                                    <th>订单号</th>
+                                    <th>Product Name</th>
+                                    <th>Video ID</th>
+                                    <th>状态提示</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>达人C</td>
+                                    <td>BD1</td>
+                                    <td>2026-04-25<br>2026-05-03</td>
+                                    <td>ORD-001<br>ORD-005</td>
+                                    <td>护肤品套装<br>精华液</td>
+                                    <td>-</td>
+                                    <td>距离30天黑名单还有14天</td>
+                                    <td>
+                                        <button class="btn secondary" onclick="videoBind()">视频绑定</button>
+                                        <button class="btn secondary" onclick="sampleBind()">寄样绑定</button>
+                                        <button class="btn danger" onclick="returnSample()">退样</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>达人D</td>
+                                    <td>BD2</td>
+                                    <td>2026-04-18</td>
+                                    <td>ORD-002</td>
+                                    <td>彩妆套装</td>
+                                    <td>https://video.example.com/123<br>https://video.example.com/456</td>
+                                    <td>-</td>
+                                    <td>
+                                        <button class="btn secondary" onclick="videoBind()">视频绑定</button>
+                                        <button class="btn secondary" onclick="sampleBind()">寄样绑定</button>
+                                        <button class="btn danger" onclick="returnSample()">退样</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-bar" data-tab="sampled">
+                        <div class="pagination-summary">共 <strong>1</strong> 条</div>
+                        <div class="pagination-controls"></div>
+                        <div class="pagination-extra">
+                            <select>
+                                <option value="50">50条/页</option>
+                                <option value="100">100条/页</option>
+                                <option value="200">200条/页</option>
+                            </select>
+                            <span>前往</span>
+                            <input type="number" min="1" placeholder="页码">
+                            <button class="btn secondary">确定</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" id="blacklist" style="display:none;">
+                    <div class="section-title">
+                        <h3>达人管理 - 黑名单</h3>
+                        <div class="quick-actions">
+                            <button class="btn secondary" onclick="exportData()">导出</button>
+                        </div>
+                    </div>
+                    <div class="toolbar">
+                        <input type="text" placeholder="达人名称">
+                        <div class="multi-select">
+                            <div class="multi-select-trigger" onclick="toggleMultiSelect(this, 'contact-blacklist')">
+                                <span>建联人</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="multi-select-dropdown" id="contact-blacklist-dropdown">
+                                <div class="multi-select-item"><input type="checkbox"> BD1</div>
+                                <div class="multi-select-item"><input type="checkbox"> BD2</div>
+                                <div class="multi-select-item"><input type="checkbox"> BD3</div>
+                            </div>
+                        </div>
+                        <div class="date-range">
+                            <select><option>寄样时间</option><option>建联时间</option></select>
+                            <input type="date">
+                            <span style="align-self:center;color:#7b8da3;">~</span>
+                            <input type="date">
+                        </div>
+                        <button class="btn primary search" onclick="filterData('blacklist')">搜索</button>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>达人名称</th>
+                                    <th>建联人</th>
+                                    <th>寄样时间</th>
+                                    <th>订单号</th>
+                                    <th>Product Name</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>达人E</td>
+                                    <td>BD2</td>
+                                    <td>2026-03-05</td>
+                                    <td>ORD-003</td>
+                                    <td>口红套装</td>
+                                    <td><button class="btn secondary" onclick="showLog()">日志</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-bar" data-tab="blacklist">
+                        <div class="pagination-summary">共 <strong>1</strong> 条</div>
+                        <div class="pagination-controls"></div>
+                        <div class="pagination-extra">
+                            <select>
+                                <option value="50">50条/页</option>
+                                <option value="100">100条/页</option>
+                                <option value="200">200条/页</option>
+                            </select>
+                            <span>前往</span>
+                            <input type="number" min="1" placeholder="页码">
+                            <button class="btn secondary">确定</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 样品管理模块 -->
+        <div id="sample-module" class="module-container" style="display:none;">
+            <div class="header-tabs">
+                <button class="tab-button active">全部</button>
+            </div>
+            <div class="panel">
+                <div class="card active">
+                    <div class="section-title">
+                        <h3>样品管理</h3>
+                        <div class="quick-actions">
+                            <button class="btn primary" onclick="importSample()">导入样品</button>
+                            <button class="btn secondary" onclick="exportData()">导出</button>
+                        </div>
+                    </div>
+                    <div class="toolbar">
+                        <input type="text" placeholder="达人名称">
+                        <input type="text" placeholder="订单号">
+                        <div class="date-range">
+                            <span>寄样日期</span>
+                            <input type="date">
+                            <span>~</span>
+                            <input type="date">
+                        </div>
+                        <button class="btn primary search">搜索</button>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox"></th>
+                                    <th>达人名称</th>
+                                    <th>订单号</th>
+                                    <th>Product Name</th>
+                                    <th>寄样时间</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>达人C</td>
+                                    <td>ORD-001</td>
+                                    <td>护肤品套装</td>
+                                    <td>2026-04-25</td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>达人D</td>
+                                    <td>ORD-002</td>
+                                    <td>彩妆套装</td>
+                                    <td>2026-04-18</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 视频管理模块 -->
+        <div id="video-module" class="module-container" style="display:none;">
+            <div class="header-tabs">
+                <button class="tab-button active">全部</button>
+            </div>
+            <div class="panel">
+                <div class="card active">
+                    <div class="section-title">
+                        <h3>视频管理</h3>
+                        <div class="quick-actions">
+                            <button class="btn primary" onclick="importVideo()">导入视频</button>
+                            <button class="btn secondary" onclick="exportData()">导出</button>
+                        </div>
+                    </div>
+                    <div class="toolbar">
+                        <input type="text" placeholder="达人名称">
+                        <div class="date-range">
+                            <span>发布日期</span>
+                            <input type="date">
+                            <span>~</span>
+                            <input type="date">
+                        </div>
+                        <button class="btn primary search">搜索</button>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox"></th>
+                                    <th>达人名称</th>
+                                    <th>Video ID</th>
+                                    <th>发布日期</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>达人D</td>
+                                    <td>https://video.example.com/123</td>
+                                    <td>2026-04-20</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>git
+                </div>
+            </div>
+        </div>
+        </main>
+    </div>
+    <div id="sampleModal" class="modal">
+        <div class="modal-content">
+            <h3>寄样绑定</h3>
+            <input type="text" placeholder="订单号（仅支持数字和字母）" id="tracking-number" required>
+            <div class="field-hint">订单仅支持录入数字和字母</div>
+            <input type="email" placeholder="Email（选填）" id="email">
+            <input type="text" placeholder="电话号，默认(1)+10位数字" id="phone" value="(1)">
+            <div class="field-hint">电话仅支持：(XXX)+10位数字格式，括号内位数不限</div>
+            <input type="text" placeholder="WhatsApp" id="whatsapp">
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeModal()">取消</button>
+                <button class="btn primary" onclick="confirmSampleBind()">确认</button>
+            </div>
+        </div>
+    </div>
+    <div id="videoModal" class="modal">
+        <div class="modal-content">
+            <h3>视频绑定</h3>
+            <input type="text" placeholder="Video ID（必填）" id="video-link" required>
+            <input type="date" placeholder="发布日期（选填）" id="publish-date">
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeModal()">取消</button>
+                <button class="btn primary" onclick="confirmVideoBind()">确认</button>
+            </div>
+        </div>
+    </div>
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <h3>联系达人确认</h3>
+            <p>确定要联系选中的达人吗？</p>
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeModal()">取消</button>
+                <button class="btn primary" onclick="confirmContact()">确认</button>
+            </div>
+        </div>
+    </div>
+    <div id="returnModal" class="modal">
+        <div class="modal-content">
+            <h3>退样确认</h3>
+            <p>请选择要退样的订单：</p>
+            <select id="return-order" style="width:100%; padding:10px; margin:10px 0;">
+                <option value="ORD-001">ORD-001 - 护肤品套装</option>
+                <option value="ORD-005">ORD-005 - 精华液</option>
+            </select>
+            <p>确定要退样吗？此操作将清空寄样信息并回滚到已联系状态。</p>
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeModal()">取消</button>
+                <button class="btn primary" onclick="confirmReturnSample()">确认</button>
+            </div>
+        </div>
+    </div>
+    <div id="influencerImportModal" class="modal">
+        <div class="modal-content" style="width:500px;">
+            <h3>导入达人</h3>
+            <div class="download-links">
+                <a href="#" onclick="alert('下载proboost模板')">下载模板 - proboost</a>
+                <a href="#" onclick="alert('下载Cruva模板')">下载模板 - Cruva</a>
+            </div>
+            <input type="file" id="influencer-file" accept=".xlsx,.xls,.csv" style="margin:10px 0;">
+            <p style="font-size:12px;color:#7b8da3;">支持Excel和CSV格式文件</p>
+            <div class="rule-panel">
+                <strong>新增限制：</strong>同一建联人在“已联系”状态下不可超过10000人；若导入后部分超过，则部分成功导入并提示“已联系状态下BD不可超过10000人”。
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeModal()">取消</button>
+                <button class="btn secondary" onclick="alert('数据已保存')">保存</button>
+                <button class="btn primary" onclick="alert('数据已保存并联系达人')">保存并联系</button>
+            </div>
+        </div>
+    </div>
+    <div id="sampleImportModal" class="modal">
+        <div class="modal-content" style="width:500px;">
+            <h3>导入样品</h3>
+            <div class="download-links">
+                <a href="#" onclick="alert('下载样品模板')">下载模板</a>
+            </div>
+            <input type="file" id="sample-file" accept=".xlsx,.xls,.csv" style="margin:10px 0;">
+            <p style="font-size:12px;color:#7b8da3;">支持Excel和CSV格式文件，支持部分成功部分导入</p>
+            <div class="rule-panel">
+                <strong>导入校验：</strong>电话仅支持：(XXX)+10位数字格式；订单仅支持录入数字和字母。数据库不做强校验，异常情况可从数据库导入。
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeModal()">取消</button>
+                <button class="btn primary" onclick="alert('样品数据已导入')">保存</button>
+            </div>
+        </div>
+    </div>
+    <div id="videoImportModal" class="modal">
+        <div class="modal-content" style="width:500px;">
+            <h3>导入视频</h3>
+            <div class="download-links">
+                <a href="#" onclick="alert('下载视频模板')">下载模板</a>
+            </div>
+            <input type="file" id="video-file" accept=".xlsx,.xls,.csv" style="margin:10px 0;">
+            <p style="font-size:12px;color:#7b8da3;">支持Excel和CSV格式文件</p>
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeModal()">取消</button>
+                <button class="btn primary" onclick="alert('视频数据已导入')">保存</button>
+            </div>
+        </div>
+    </div>
+    <div id="logModal" class="modal">
+        <div class="modal-content" style="width:600px;">
+            <h3>操作日志</h3>
+            <table class="log-table">
+                <thead>
+                    <tr>
+                        <th>操作类型</th>
+                        <th>操作人</th>
+                        <th>操作时间</th>
+                        <th>详情</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>联系达人</td>
+                        <td>BD1</td>
+                        <td>2026-05-01 10:00</td>
+                        <td>将达人状态改为已联系</td>
+                    </tr>
+                    <tr>
+                        <td>寄样绑定</td>
+                        <td>BD1</td>
+                        <td>2026-04-25 14:30</td>
+                        <td>绑定订单号ORD-001</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+    <div id="changeOwnerModal" class="modal">
+        <div class="modal-content">
+            <h3>变更建联人</h3>
+            <p style="color:#7b8da3;font-size:13px;">当前达人：<strong id="change-owner-name">-</strong></p>
+            <select id="new-owner" style="width:100%; padding:12px 14px; margin:10px 0; border:1px solid #d7dee8; border-radius:8px;">
+                <option value="">请选择建联人</option>
+                <option value="BD1">BD1</option>
+                <option value="BD2">BD2</option>
+                <option value="BD3">BD3</option>
+                <option value="BD4">BD4</option>
+            </select>
+            <div class="field-hint">仅已联系、已寄样、黑名单状态支持变更建联人。</div>
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeModal()">取消</button>
+                <button class="btn primary" onclick="confirmChangeOwner()">确认变更</button>
+            </div>
+        </div>
+    </div>
+    <div id="deleteInfluencerModal" class="modal">
+        <div class="modal-content">
+            <h3>删除达人确认</h3>
+            <p>确定要删除达人 <strong id="delete-influencer-name">-</strong> 吗？</p>
+            <div class="rule-panel">
+                删除达人后，将同步删除该达人关联的订单及视频信息，请谨慎操作。
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeModal()">取消</button>
+                <button class="btn danger" onclick="confirmDeleteInfluencer()">确认删除</button>
+            </div>
+        </div>
+    </div>
+    <div id="renameInfluencerModal" class="modal">
+        <div class="modal-content">
+            <h3>变更达人名称</h3>
+            <p style="color:#7b8da3;font-size:13px;">原达人名称：<strong id="rename-old-name">-</strong></p>
+            <input type="text" placeholder="请输入新的达人名称" id="rename-new-name" required>
+            <div class="rule-panel">
+                确认时会先校验新名称是否已存在；若不存在，将同步修改样品管理、视频管理中关联的达人名称。
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeModal()">取消</button>
+                <button class="btn primary" onclick="confirmRenameInfluencer()">确认变更</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const paginationState = { all: 1, pending: 1, contacted: 1, sampled: 1, blacklist: 1 };
+        
+        function switchModule(moduleId, element) {
+            // 更新侧边栏菜单状态
+            document.querySelectorAll('.menu li').forEach(item => item.classList.remove('active'));
+            if (element) element.classList.add('active');
+            
+            // 隐藏所有模块
+            document.querySelectorAll('.module-container').forEach(module => module.style.display = 'none');
+            
+            // 显示选中模块
+            const module = document.getElementById(moduleId + '-module');
+            if (module) {
+                module.style.display = 'block';
+                module.classList.add('active');
+            }
+        }
+        
+        function showInfluencerTab(tabId, btn) {
+            const sections = ['all','pending','contacted','sampled','blacklist'];
+            sections.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.display = id === tabId ? 'block' : 'none';
+                    if (id === tabId) el.classList.add('active');
+                    else el.classList.remove('active');
+                }
+            });
+            document.querySelectorAll('#influencer-module .tab-button').forEach(item => item.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            updatePagination(tabId);
+        }
+        
+        function showTab(tabId, btn) {
+            showInfluencerTab(tabId, btn);
+        }
+        
+        function toggleMultiSelect(trigger, selectId) {
+            const dropdown = document.getElementById(selectId + '-dropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('active');
+            }
+        }
+        
+        function filterData(tab) { alert('筛选 ' + tab + ' 页面'); }
+        function importInfluencer() { document.getElementById('influencerImportModal').style.display = 'flex'; }
+        function importSample() { document.getElementById('sampleImportModal').style.display = 'flex'; }
+        function importVideo() { document.getElementById('videoImportModal').style.display = 'flex'; }
+        function contactInfluencer() { document.getElementById('contactModal').style.display = 'flex'; }
+        function sampleBind() { document.getElementById('sampleModal').style.display = 'flex'; }
+        function videoBind() { document.getElementById('videoModal').style.display = 'flex'; }
+        function returnSample() { document.getElementById('returnModal').style.display = 'flex'; }
+        function showLog() { document.getElementById('logModal').style.display = 'flex'; }
+        function exportData() { alert('导出数据'); }
+        function transferData() { alert('离职交接暂未功能化，可联系IT申请修改'); }
+        function changeOwner(name, owner) {
+            document.getElementById('change-owner-name').textContent = name;
+            document.getElementById('new-owner').value = owner || '';
+            document.getElementById('changeOwnerModal').style.display = 'flex';
+        }
+        function deleteInfluencer(name) {
+            document.getElementById('delete-influencer-name').textContent = name;
+            document.getElementById('deleteInfluencerModal').style.display = 'flex';
+        }
+        function renameInfluencer(name) {
+            document.getElementById('rename-old-name').textContent = name;
+            document.getElementById('rename-new-name').value = name;
+            document.getElementById('renameInfluencerModal').style.display = 'flex';
+        }
+        function confirmChangeOwner() {
+            const owner = document.getElementById('new-owner').value;
+            if (!owner) {
+                alert('请选择建联人');
+                return;
+            }
+            alert('建联人已变更为：' + owner);
+            closeModal();
+        }
+        function confirmDeleteInfluencer() {
+            alert('达人已删除，关联订单及视频信息已同步删除');
+            closeModal();
+        }
+        function confirmRenameInfluencer() {
+            const oldName = document.getElementById('rename-old-name').textContent;
+            const newName = document.getElementById('rename-new-name').value.trim();
+            if (!newName) {
+                alert('请输入新的达人名称');
+                return;
+            }
+            if (newName === '达人A' || newName === '达人B' || newName === '达人C') {
+                alert('该名称已存在');
+                return;
+            }
+            alert('达人名称已由“' + oldName + '”变更为“' + newName + '”，样品管理、视频管理中的达人名称已同步修改');
+            closeModal();
+        }
+        function confirmSampleBind() {
+            const tracking = document.getElementById('tracking-number').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const whatsapp = document.getElementById('whatsapp').value.trim();
+            const phonePattern = /^\([^()]+\)\d{10}$/;
+            if (!tracking) {
+                alert('请填写订单号');
+                return;
+            }
+            if (!/^[A-Za-z0-9]+$/.test(tracking)) {
+                alert('订单仅支持录入数字和字母');
+                return;
+            }
+            if (!phone && !whatsapp) {
+                alert('请至少填写电话号或WhatsApp中的一项');
+                return;
+            }
+            if (phone && !phonePattern.test(phone)) {
+                alert('电话仅支持：(XXX)+10位数字格式');
+                return;
+            }
+            if (whatsapp && !phonePattern.test(whatsapp)) {
+                alert('电话仅支持：(XXX)+10位数字格式');
+                return;
+            }
+            alert('寄样绑定已确认');
+            closeModal();
+        }
+        function confirmVideoBind() {
+            const link = document.getElementById('video-link').value;
+            if (!link) {
+                alert('请填写Video ID');
+                return;
+            }
+            alert('视频绑定已确认');
+            closeModal();
+        }
+        function confirmContact() {
+            alert('联系达人已确认');
+            closeModal();
+        }
+        function confirmReturnSample() {
+            alert('退样处理已确认');
+            closeModal();
+        }
+        function confirmTransfer() {
+            alert('一键交接已确认');
+            closeModal();
+        }
+        function closeModal() {
+            [
+                'sampleModal',
+                'videoModal',
+                'contactModal',
+                'returnModal',
+                'influencerImportModal',
+                'sampleImportModal',
+                'videoImportModal',
+                'logModal',
+                'changeOwnerModal',
+                'deleteInfluencerModal',
+                'renameInfluencerModal'
+            ].forEach(id => {
+                const modal = document.getElementById(id);
+                if (modal) modal.style.display = 'none';
+            });
+            // 关闭所有下拉框
+            document.querySelectorAll('.multi-select-dropdown').forEach(dropdown => dropdown.classList.remove('active'));
+        }
+        
+        // 点击其他地方关闭下拉框
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.multi-select')) {
+                document.querySelectorAll('.multi-select-dropdown').forEach(dropdown => dropdown.classList.remove('active'));
+            }
+        });
+        function updatePagination(tabId) {
+            const card = document.getElementById(tabId);
+            if (!card) return;
+            const rows = card.querySelectorAll('tbody tr');
+            const totalRows = rows.length;
+            const pageSizeSelect = card.querySelector('.pagination-extra select');
+            const pageSize = pageSizeSelect ? parseInt(pageSizeSelect.value, 10) : 50;
+            const totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
+            if (paginationState[tabId] > totalPages) {
+                paginationState[tabId] = totalPages;
+            }
+            const summary = card.querySelector('.pagination-summary');
+            if (summary) {
+                summary.innerHTML = `共 <strong>${totalRows}</strong> 条`;
+            }
+            renderPaginationControls(tabId, paginationState[tabId], totalPages);
+        }
+        function renderPaginationControls(tabId, currentPage, totalPages) {
+            const bar = document.querySelector(`.pagination-bar[data-tab="${tabId}"]`);
+            if (!bar) return;
+            const controls = bar.querySelector('.pagination-controls');
+            controls.innerHTML = '';
+            const addButton = (text, active, disabled, callback) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'page-btn' + (active ? ' active' : '');
+                btn.textContent = text;
+                btn.disabled = disabled;
+                if (!disabled && callback) btn.onclick = callback;
+                controls.appendChild(btn);
+            };
+            addButton('‹', false, currentPage === 1, () => setPage(tabId, currentPage - 1));
+            if (totalPages <= 5) {
+                for (let i = 1; i <= totalPages; i += 1) {
+                    addButton(i, i === currentPage, false, () => setPage(tabId, i));
+                }
+            } else {
+                addButton(1, currentPage === 1, false, () => setPage(tabId, 1));
+                addButton(2, currentPage === 2, false, () => setPage(tabId, 2));
+                if (currentPage > 4) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'page-ellipsis';
+                    ellipsis.textContent = '…';
+                    controls.appendChild(ellipsis);
+                }
+                const middlePages = [Math.max(3, currentPage - 1), currentPage, Math.min(totalPages - 2, currentPage + 1)].filter((value, index, self) => self.indexOf(value) === index && value > 2 && value < totalPages - 1);
+                middlePages.forEach(page => addButton(page, page === currentPage, false, () => setPage(tabId, page)));
+                if (currentPage < totalPages - 3) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'page-ellipsis';
+                    ellipsis.textContent = '…';
+                    controls.appendChild(ellipsis);
+                }
+                addButton(totalPages - 1, currentPage === totalPages - 1, false, () => setPage(tabId, totalPages - 1));
+                addButton(totalPages, currentPage === totalPages, false, () => setPage(tabId, totalPages));
+            }
+            addButton('›', false, currentPage === totalPages, () => setPage(tabId, currentPage + 1));
+        }
+        function setPage(tabId, page) {
+            const card = document.getElementById(tabId);
+            if (!card) return;
+            const rows = card.querySelectorAll('tbody tr');
+            const pageSize = parseInt(card.querySelector('.pagination-extra select').value, 10) || 50;
+            const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+            const targetPage = Math.min(Math.max(1, page), totalPages);
+            paginationState[tabId] = targetPage;
+            renderPaginationControls(tabId, targetPage, totalPages);
+        }
+        function goToPage(tabId) {
+            const card = document.getElementById(tabId);
+            if (!card) return;
+            const input = card.querySelector('.pagination-extra input');
+            const page = parseInt(input.value, 10);
+            if (!Number.isNaN(page)) {
+                setPage(tabId, page);
+            }
+        }
+        function initPagination() {
+            document.querySelectorAll('.pagination-bar').forEach(bar => {
+                const tabId = bar.dataset.tab;
+                const pageSizeSelect = bar.querySelector('select');
+                const button = bar.querySelector('.pagination-extra button');
+                if (pageSizeSelect) pageSizeSelect.onchange = () => updatePagination(tabId);
+                if (button) button.onclick = () => goToPage(tabId);
+            });
+            ['all', 'pending', 'contacted', 'sampled', 'blacklist'].forEach(updatePagination);
+        }
+        window.onload = initPagination;
+    </script>
+</body>
+</html>
