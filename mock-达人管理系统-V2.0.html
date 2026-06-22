@@ -144,7 +144,7 @@
                             </div>
                         </div>
                         <div class="date-range">
-                            <select><option>建联时间</option><option>寄样时间</option></select>
+                            <select><option>建联时间</option><option>寄样时间</option><option>最新视频发布时间</option></select>
                             <input type="date">
                             <span style="align-self:center;color:#7b8da3;">~</span>
                             <input type="date">
@@ -166,7 +166,9 @@
                                     <th>寄样时间</th>
                                     <th>订单号</th>
                                     <th>Product Name</th>
+                                    <th>Seller SKU</th>
                                     <th>Video ID</th>
+                                    <th>最新视频发布时间</th>
                                     <th>状态提示</th>
                                     <th>操作</th>
                                 </tr>
@@ -186,6 +188,8 @@
                                     <td>-</td>
                                     <td>-</td>
                                     <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
                                     <td><button class="btn secondary" onclick="contactInfluencer()">联系</button> <button class="btn secondary" onclick="showLog()">日志</button></td>
                                 </tr>
                                 <tr>
@@ -197,6 +201,8 @@
                                     <td>¥120,000</td>
                                     <td>25,000</td>
                                     <td>92%</td>
+                                    <td>-</td>
+                                    <td>-</td>
                                     <td>-</td>
                                     <td>-</td>
                                     <td>-</td>
@@ -222,6 +228,8 @@
                                     <td>2026-04-25<br>2026-05-03</td>
                                     <td>ORD-001<br>ORD-005</td>
                                     <td>护肤品套装<br>精华液</td>
+                                    <td>SKU-A01<br>SKU-A05</td>
+                                    <td>-</td>
                                     <td>-</td>
                                     <td>距离30天黑名单还有14天</td>
                                     <td>
@@ -246,8 +254,10 @@
                                     <td>2026-04-18</td>
                                     <td>ORD-002</td>
                                     <td>彩妆套装</td>
+                                    <td>SKU-B02</td>
                                     <td>https://video.example.com/123<br>https://video.example.com/456</td>
-                                    <td>-</td>
+                                    <td>2026-04-28</td>
+                                    <td>距离180天回滚待建联还有165天</td>
                                     <td>
                                         <button class="btn secondary" onclick="videoBind()">视频绑定</button>
                                         <button class="btn secondary" onclick="sampleBind()">寄样绑定</button>
@@ -270,6 +280,8 @@
                                     <td>2026-03-05</td>
                                     <td>ORD-003</td>
                                     <td>口红套装</td>
+                                    <td>SKU-C03</td>
+                                    <td>-</td>
                                     <td>-</td>
                                     <td>-</td>
                                     <td>
@@ -282,7 +294,7 @@
                                 <tr>
                                     <td><input type="checkbox" disabled></td>
                                     <td>达人G</td>
-                                    <td><span class="status-pill status-pending">待建联</span></td>
+                                    <td><span class="status-pill status-pending">待建联</span> <span class="status-pill" style="background:#fdf0ff;color:#a23ba2;">二次跟进</span></td>
                                     <td>-</td>
                                     <td>-</td>
                                     <td>¥75,000</td>
@@ -292,6 +304,8 @@
                                     <td>-</td>
                                     <td>-</td>
                                     <td>-</td>
+                                    <td>-</td>
+                                    <td>2025-10-15</td>
                                     <td>距离14天解禁还有7天（BD1不可联系）</td>
                                     <td><span style="color:#999;">（BD1不可联系）</span> <button class="btn secondary" onclick="showLog()">日志</button></td>
                                 </tr>
@@ -318,6 +332,7 @@
                         <h3>达人管理 - 待建联</h3>
                         <div class="quick-actions">
                             <button class="btn primary" onclick="importInfluencer()">导入达人</button>
+                            <button class="btn primary" onclick="addInfluencer()">新增达人</button>
                             <button class="btn secondary" onclick="contactInfluencer()">联系</button>
                             <button class="btn secondary" onclick="exportData()">导出</button>
                         </div>
@@ -483,7 +498,9 @@
                                     <th>寄样时间</th>
                                     <th>订单号</th>
                                     <th>Product Name</th>
+                                    <th>Seller SKU</th>
                                     <th>Video ID</th>
+                                    <th>最新视频发布时间</th>
                                     <th>状态提示</th>
                                     <th>操作</th>
                                 </tr>
@@ -495,6 +512,8 @@
                                     <td>2026-04-25<br>2026-05-03</td>
                                     <td>ORD-001<br>ORD-005</td>
                                     <td>护肤品套装<br>精华液</td>
+                                    <td>SKU-A01<br>SKU-A05</td>
+                                    <td>-</td>
                                     <td>-</td>
                                     <td>距离30天黑名单还有14天</td>
                                     <td>
@@ -509,8 +528,26 @@
                                     <td>2026-04-18</td>
                                     <td>ORD-002</td>
                                     <td>彩妆套装</td>
+                                    <td>SKU-B02</td>
                                     <td>https://video.example.com/123<br>https://video.example.com/456</td>
-                                    <td>-</td>
+                                    <td>2026-04-28</td>
+                                    <td>距离180天回滚待建联还有165天</td>
+                                    <td>
+                                        <button class="btn secondary" onclick="videoBind()">视频绑定</button>
+                                        <button class="btn secondary" onclick="sampleBind()">寄样绑定</button>
+                                        <button class="btn danger" onclick="returnSample()">退样</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>达人H</td>
+                                    <td>BD1</td>
+                                    <td>2026-05-08</td>
+                                    <td>ORD-008</td>
+                                    <td>面膜套装</td>
+                                    <td>SKU-H08</td>
+                                    <td>https://video.example.com/789</td>
+                                    <td>2026-05-10</td>
+                                    <td><span style="color:#a23ba2;">[二次跟进] 距离14天回滚待建联还有9天</span></td>
                                     <td>
                                         <button class="btn secondary" onclick="videoBind()">视频绑定</button>
                                         <button class="btn secondary" onclick="sampleBind()">寄样绑定</button>
@@ -521,7 +558,7 @@
                         </table>
                     </div>
                     <div class="pagination-bar" data-tab="sampled">
-                        <div class="pagination-summary">共 <strong>1</strong> 条</div>
+                        <div class="pagination-summary">共 <strong>3</strong> 条</div>
                         <div class="pagination-controls"></div>
                         <div class="pagination-extra">
                             <select>
@@ -890,6 +927,19 @@
             </div>
         </div>
     </div>
+    <div id="addInfluencerModal" class="modal">
+        <div class="modal-content">
+            <h3>新增达人</h3>
+            <input type="text" placeholder="请输入达人名称" id="add-influencer-name" required>
+            <div class="rule-panel">
+                点击“保存并联系”时会先校验名称是否已存在；若存在则提示“该名称已存在”；若不存在，则新增并直接置为“已联系”状态，建联人为当前用户。
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeModal()">取消</button>
+                <button class="btn primary" onclick="confirmAddInfluencer()">保存并联系</button>
+            </div>
+        </div>
+    </div>
     <script>
         const paginationState = { all: 1, pending: 1, contacted: 1, sampled: 1, blacklist: 1 };
         
@@ -959,6 +1009,23 @@
             document.getElementById('rename-old-name').textContent = name;
             document.getElementById('rename-new-name').value = name;
             document.getElementById('renameInfluencerModal').style.display = 'flex';
+        }
+        function addInfluencer() {
+            document.getElementById('add-influencer-name').value = '';
+            document.getElementById('addInfluencerModal').style.display = 'flex';
+        }
+        function confirmAddInfluencer() {
+            const name = document.getElementById('add-influencer-name').value.trim();
+            if (!name) {
+                alert('请输入达人名称');
+                return;
+            }
+            if (name === '达人A' || name === '达人B' || name === '达人C') {
+                alert('该名称已存在');
+                return;
+            }
+            alert('达人“' + name + '”已新增并置为已联系状态');
+            closeModal();
         }
         function confirmChangeOwner() {
             const owner = document.getElementById('new-owner').value;
@@ -1048,7 +1115,8 @@
                 'logModal',
                 'changeOwnerModal',
                 'deleteInfluencerModal',
-                'renameInfluencerModal'
+                'renameInfluencerModal',
+                'addInfluencerModal'
             ].forEach(id => {
                 const modal = document.getElementById(id);
                 if (modal) modal.style.display = 'none';
