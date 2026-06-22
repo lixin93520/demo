@@ -112,14 +112,19 @@
                     <div class="section-title">
                         <h3>达人管理 - 全部</h3>
                         <div class="quick-actions">
+                            <button class="btn primary" onclick="importInfluencer()">导入达人</button>
+                            <button class="btn primary" onclick="addInfluencer()">新增达人</button>
                             <button class="btn secondary" onclick="exportData()">导出</button>
                         </div>
                     </div>
                     <div class="auto-task-tip" style="background:#e3f2fd; color:#1976d2; padding:8px 15px; margin:10px 0; border-radius:4px; font-size:13px;">
                         ℹ️ 每天北京时间9点自动执行状态流转
                     </div>
+                    <div class="auto-task-tip" style="background:#f0f9eb; color:#2f9e4b; padding:8px 15px; margin:10px 0; border-radius:4px; font-size:13px;">
+                        🔎 使用 @ 批量查询达人时，列表将按输入的达人顺序排序展示，方便对照录入；单个达人查询支持前后模糊匹配
+                    </div>
                     <div class="toolbar">
-                        <input type="text" placeholder="达人名称（用@批量查询）">
+                        <input type="text" placeholder="达人名称（用@批量查询，单个达人支持前后模糊搜索）">
                         <div class="multi-select">
                             <div class="multi-select-trigger" onclick="toggleMultiSelect(this, 'contact-all')">
                                 <span>建联人</span>
@@ -812,13 +817,13 @@
             </div>
             <input type="file" id="influencer-file" accept=".xlsx,.xls,.csv" style="margin:10px 0;">
             <p style="font-size:12px;color:#7b8da3;">支持Excel和CSV格式文件</p>
-            <div class="rule-panel">
-                <strong>新增限制：</strong>同一建联人在“已联系”状态下不可超过10000人；若导入后部分超过，则部分成功导入并提示“已联系状态下BD不可超过10000人”。
+            <div class="rule-panel" style="border-color:#ffd591; background:#fff8e6; color:#d98232;">
+                <strong>异步导入：</strong>数据量较大时，导入将改为后台异步处理，提交后请稍后查看导入结果及失败明细。
             </div>
             <div class="modal-footer">
                 <button class="btn secondary" onclick="closeModal()">取消</button>
-                <button class="btn secondary" onclick="alert('数据已保存')">保存</button>
-                <button class="btn primary" onclick="alert('数据已保存并联系达人')">保存并联系</button>
+                <button class="btn secondary" onclick="alert('已提交后台异步导入，请稍后查看数据')">保存</button>
+                <button class="btn primary" onclick="alert('已提交后台异步导入并联系，请稍后查看数据')">保存并联系</button>
             </div>
         </div>
     </div>
