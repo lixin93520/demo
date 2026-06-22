@@ -120,9 +120,6 @@
                     <div class="auto-task-tip" style="background:#e3f2fd; color:#1976d2; padding:8px 15px; margin:10px 0; border-radius:4px; font-size:13px;">
                         ℹ️ 每天北京时间9点自动执行状态流转
                     </div>
-                    <div class="auto-task-tip" style="background:#f0f9eb; color:#2f9e4b; padding:8px 15px; margin:10px 0; border-radius:4px; font-size:13px;">
-                        🔎 使用 @ 批量查询达人时，列表将按输入的达人顺序排序展示，方便对照录入；单个达人查询支持前后模糊匹配
-                    </div>
                     <div class="toolbar">
                         <input type="text" placeholder="达人名称（用@批量查询，单个达人支持前后模糊搜索）">
                         <div class="multi-select">
@@ -195,7 +192,12 @@
                                     <td>-</td>
                                     <td>-</td>
                                     <td>-</td>
-                                    <td><button class="btn secondary" onclick="contactInfluencer()">联系</button> <button class="btn secondary" onclick="showLog()">日志</button></td>
+                                    <td>
+                                        <button class="btn secondary" onclick="contactInfluencer()">联系</button>
+                                        <button class="btn secondary" onclick="renameInfluencer('达人A')">变更名称</button>
+                                        <button class="btn danger" onclick="deleteInfluencer('达人A')">删除</button>
+                                        <button class="btn secondary" onclick="showLog()">日志</button>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td><input type="checkbox"></td>
@@ -312,7 +314,12 @@
                                     <td>-</td>
                                     <td>2025-10-15</td>
                                     <td>距离14天解禁还有7天（BD1不可联系）</td>
-                                    <td><span style="color:#999;">（BD1不可联系）</span> <button class="btn secondary" onclick="showLog()">日志</button></td>
+                                    <td>
+                                        <span style="color:#999;">（BD1不可联系）</span>
+                                        <button class="btn secondary" onclick="renameInfluencer('达人G')">变更名称</button>
+                                        <button class="btn danger" onclick="deleteInfluencer('达人G')">删除</button>
+                                        <button class="btn secondary" onclick="showLog()">日志</button>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -367,7 +374,11 @@
                                     <td>12,500</td>
                                     <td>85%</td>
                                     <td>-</td>
-                                    <td><button class="btn secondary" onclick="contactInfluencer()">联系</button></td>
+                                    <td>
+                                        <button class="btn secondary" onclick="contactInfluencer()">联系</button>
+                                        <button class="btn secondary" onclick="renameInfluencer('达人A')">变更名称</button>
+                                        <button class="btn danger" onclick="deleteInfluencer('达人A')">删除</button>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td><input type="checkbox"></td>
@@ -376,7 +387,11 @@
                                     <td>10,500</td>
                                     <td>80%</td>
                                     <td>-</td>
-                                    <td><button class="btn secondary" onclick="contactInfluencer()">联系</button></td>
+                                    <td>
+                                        <button class="btn secondary" onclick="contactInfluencer()">联系</button>
+                                        <button class="btn secondary" onclick="renameInfluencer('达人F')">变更名称</button>
+                                        <button class="btn danger" onclick="deleteInfluencer('达人F')">删除</button>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td><input type="checkbox" disabled></td>
@@ -385,7 +400,11 @@
                                     <td>18,000</td>
                                     <td>88%</td>
                                     <td>距离14天解禁还有7天（BD1不可联系）</td>
-                                    <td><span style="color:#999;">（BD1不可联系）</span></td>
+                                    <td>
+                                        <span style="color:#999;">（BD1不可联系）</span>
+                                        <button class="btn secondary" onclick="renameInfluencer('达人G')">变更名称</button>
+                                        <button class="btn danger" onclick="deleteInfluencer('达人G')">删除</button>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
