@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>发票管理与付款核对 - 原型</title>
+<style>
+:root{
+  --el-color-primary:#4b66dd;
+  --el-color-primary-light:#ecf0fb;
+  --el-color-success:#67c23a;
+  --el-color-warning:#e6a23c;
+  --el-color-danger:#f56c6c;
+  --el-color-info:#909399;
+  --el-text-primary:#303133;
+  --el-text-regular:#606266;
+  --el-text-secondary:#909399;
+  --el-border-color:#dcdfe6;
+  --el-fill-color-light:#f5f7fa;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#fff;
+  color:var(--el-text-primary);
+  font-family:"PingFang SC","Helvetica Neue",Helvetica,"Hiragino Sans GB","Microsoft YaHei",Arial,sans-serif;
+  font-size:14px;
+}
+button,input,select{font-family:inherit}
+.content{max-width:1500px;margin:0 auto;padding:18px 20px 40px}
+.page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:16px}
+.page-title{font-size:16px;font-weight:700;color:#303133;margin:0}
+.page-sub{color:var(--el-text-secondary);font-size:12px;margin:4px 0 0}
+.page-actions{display:flex;gap:8px;align-items:center}
+.el-button{display:inline-flex;align-items:center;justify-content:center;height:27px;padding:0 11px;border:1px solid #dcdfe6;background:#fff;color:var(--el-text-regular);border-radius:3px;cursor:pointer;font-size:12px;line-height:1;white-space:nowrap}
+.el-button:hover{border-color:#b8c2ee;color:var(--el-color-primary);background:#ecf0fb}
+.el-button.primary{background:var(--el-color-primary);border-color:var(--el-color-primary);color:#fff}
+.el-button.primary:hover{background:#4160cf;border-color:#4160cf;color:#fff}
+.el-button.danger{background:#fff;border-color:#fbc4c4;color:var(--el-color-danger)}
+.el-button.danger:hover{background:#fef0f0;border-color:var(--el-color-danger)}
+.rule-banner{border:1px solid #d9e2ff;background:#f5f8ff;color:#4f5c88;border-radius:3px;padding:10px 12px;font-size:12px;display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.rule-banner b{color:var(--el-color-primary)}
+.rule-banner .more{margin-left:auto;color:var(--el-color-primary);font-weight:600;cursor:pointer;white-space:nowrap}
+.panel{border:1px solid var(--el-border-color);border-radius:4px;background:#fff;overflow:hidden}
+.tabs{display:flex;align-items:center;border-bottom:1px solid var(--el-border-color);padding:0 13px}
+.tab{height:40px;line-height:40px;padding:0 20px;color:var(--el-text-regular);font-size:14px;cursor:pointer;position:relative;white-space:nowrap}
+.tab:hover{color:var(--el-color-primary)}
+.tab.active{color:var(--el-color-primary)}
+.tab.active::after{content:"";position:absolute;left:20px;right:20px;bottom:0;height:2px;background:var(--el-color-primary)}
+.tab .num{font-size:13px;color:inherit}
+.tab .num::before{content:"("}
+.tab .num::after{content:")"}
+.tab.warning .num{color:var(--el-color-danger)}
+.filter-bar{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end;border-bottom:1px solid var(--el-border-color);padding:12px 14px 14px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:150px}
+.field.wide{min-width:230px;flex:1}
+.field label{color:var(--el-text-regular);font-size:12px}
+.el-input{height:27px;border:1px solid var(--el-border-color);border-radius:3px;padding:0 9px;font-size:14px;color:var(--el-text-regular);background:#fff;width:100%;outline:none}
+.el-input:focus{border-color:var(--el-color-primary)}
+.select{height:27px;border:1px solid var(--el-border-color);border-radius:3px;padding:0 8px;background:#fff;color:var(--el-text-regular);font-size:14px;width:100%;outline:none}
+.sel{position:relative}
+.sel-input{padding-right:24px;cursor:pointer}
+.sel-arrow{position:absolute;right:8px;top:50%;transform:translateY(-50%);color:#c0c4cc;font-size:11px;pointer-events:none;line-height:1}
+.sel-drop{display:none;position:absolute;left:0;right:0;top:31px;margin-top:2px;background:#fff;border:1px solid var(--el-border-color);border-radius:4px;box-shadow:0 6px 16px rgba(0,0,0,.1);max-height:224px;overflow-y:auto;z-index:50}
+.sel.open .sel-drop{display:block}
+.sel-option{padding:7px 11px;font-size:13px;color:var(--el-text-regular);cursor:pointer;white-space:nowrap}
+.sel-option:hover{background:var(--el-color-primary-light)}
+.sel-option.selected{color:var(--el-color-primary);font-weight:600}
+.sel-empty{padding:10px 12px;color:var(--el-text-secondary);font-size:12px;text-align:center}
+.docno-sel{position:relative;display:flex;align-items:stretch;width:230px}
+.docno-type{position:relative;flex:none}
+.docno-type-trigger{display:flex;align-items:center;gap:4px;height:27px;padding:0 20px 0 8px;border:1px solid var(--el-border-color);border-right:none;border-radius:3px 0 0 3px;background:#f5f7fa;color:var(--el-color-primary);font-size:13px;font-weight:600;cursor:pointer;user-select:none;line-height:27px}
+.docno-type .sel-drop{display:none;min-width:96px;left:0;right:auto;top:29px}
+.docno-type.open .sel-drop{display:block}
+.docno-value{position:relative;flex:1}
+.docno-value .el-input{border-radius:0 3px 3px 0}
+.toolbar-note{padding:8px 12px;border-bottom:1px solid #ebeef5;display:flex;align-items:center;justify-content:space-between;color:var(--el-text-regular);font-size:12px;background:#fafafa}
+.checkbox{display:inline-flex;align-items:center;gap:6px;color:var(--el-text-regular);font-size:12px}
+.check{width:14px;height:14px;accent-color:var(--el-color-primary)}
+.table-wrap{overflow-x:auto}
+.el-table{width:100%;border-collapse:collapse;min-width:1440px;table-layout:fixed}
+.el-table th{padding:6px 10px;text-align:left;background:var(--el-fill-color-light);color:#515a6e;font-size:13px;font-weight:700;border-bottom:1px solid #ebeef5;white-space:nowrap}
+.el-table td{padding:7px 10px;color:var(--el-text-regular);font-size:12px;line-height:19px;border-bottom:1px solid #ebeef5;vertical-align:middle}
+.el-table tbody tr:hover{background:#f5f7fa}
+.sub-line{display:block;min-height:18px}
+.sub-line b{color:#303133;font-weight:600}
+.sub-line .label{color:var(--el-text-secondary);font-size:12px}
+.dup-warn{color:var(--el-color-danger);font-size:12px}
+.mono{font-variant-numeric:tabular-nums}
+.amount{color:#303133;font-weight:600}
+.muted{color:#c0c4cc}
+.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
+.status-warn{color:var(--el-color-warning)}
+.status-danger{color:var(--el-color-danger)}
+.status-success{color:var(--el-color-success)}
+.status-pending{color:var(--el-color-primary)}
+.link{color:var(--el-color-primary);cursor:pointer;font-size:12px;margin-right:10px;white-space:nowrap;text-decoration:none}
+.link:last-child{margin-right:0}
+.link.warn{color:var(--el-color-danger)}
+.doc-block{display:flex;gap:26px;align-items:flex-start;min-width:620px}
+.doc-left{min-width:150px}
+.doc-right{flex:1;min-width:380px}
+.doc-title{font-weight:700;color:#303133;margin-bottom:8px;font-size:12px}
+.doc-code{display:flex;align-items:center;gap:7px;margin:4px 0;line-height:20px}
+.doc-code-label{display:inline-block;width:20px;color:#909399;font-size:11px}
+.doc-link{color:var(--el-color-primary);cursor:pointer;font-size:12px;text-decoration:none}
+.doc-psku{color:#303133;font-size:12px;margin-bottom:6px}
+.doc-section{margin-bottom:8px}
+.doc-section-title{color:#515a6e;font-weight:700;font-size:12px;margin-bottom:4px}
+.doc-qty-line{display:flex;align-items:center;gap:8px;line-height:20px;font-size:12px;color:#303133}
+.doc-qty-tag{width:34px;color:#909399;font-size:11px}
+.doc-qty-value{font-variant-numeric:tabular-nums}
+.doc-amount{color:#303133;font-size:12px;margin-top:2px}
+.empty{border-top:1px solid #ebeef5;padding:46px 16px;text-align:center;color:var(--el-text-secondary);font-size:12px}
+.pagination{border-top:1px solid #ebeef5;display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:8px 12px;color:var(--el-text-regular);font-size:12px}
+.pagination .page{width:27px;height:27px;background:var(--el-color-primary);color:#fff;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+.modal-mask{display:none;position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:20;align-items:center;justify-content:center}
+.modal{width:720px;max-width:calc(100vw - 40px);background:#fff;border-radius:4px;box-shadow:0 20px 60px rgba(0,0,0,.2);padding:20px 22px}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.modal-header h3{margin:0;font-size:16px;font-weight:700;color:#303133}
+.modal-close{border:0;background:transparent;color:var(--el-text-secondary);font-size:20px;cursor:pointer;line-height:1}
+.rule-list{display:grid;gap:10px;margin:14px 0 18px}
+.rule-item{display:flex;gap:10px;background:#f5f7fa;border:1px solid #ebeef5;border-radius:3px;padding:12px}
+.rule-num{width:22px;height:22px;flex-shrink:0;border-radius:50%;background:var(--el-color-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.rule-item b{font-size:13px;color:#303133}
+.rule-item p{margin:3px 0 0;font-size:12px;color:var(--el-text-regular);line-height:1.6}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);background:#303133;color:#fff;padding:9px 16px;border-radius:4px;font-size:13px;opacity:0;pointer-events:none;transition:all .25s ease;z-index:50}
+.toast.show{opacity:.95;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="content">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">发票管理</h1>
+    </div>
+    <div class="page-actions">
+
+      <button class="el-button" onclick="exportList(false)">导出列表信息（不含发票）</button>
+      <button class="el-button primary" onclick="exportList(true)">导出列表信息（含发票）</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="tabs">
+      <div class="tab active" data-tab="all" onclick="switchTab('all')">全部 <span class="num" id="countAll">0</span></div>
+      <div class="tab" data-tab="pending" onclick="switchTab('pending')">待核对 <span class="num" id="countPending">0</span></div>
+      <div class="tab" data-tab="matched" onclick="switchTab('matched')">已核对 <span class="num" id="countMatched">0</span></div>
+      <div class="tab" data-tab="diff" onclick="switchTab('diff')">核对差异 <span class="num" id="countDiff">0</span></div>
+      <div class="tab warning" data-tab="alert" onclick="switchTab('alert')">未上传发票 <span class="num" id="countMissing">0</span></div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="field"><label>发票号码</label><input class="el-input" id="fInvoice" oninput="applyFilters()"></div>
+      <div class="field"><label>供应商</label><input class="el-input" id="fVendor" oninput="applyFilters()"></div>
+      <div class="field">
+        <div class="docno-sel">
+          <div class="docno-type" id="docType">
+            <div class="docno-type-trigger"><span id="docTypeLabel">PA#</span><span class="sel-arrow">▾</span></div>
+            <div class="sel-drop" id="docTypeDrop"></div>
+          </div>
+          <div class="docno-value sel" data-sel="docno">
+            <input class="el-input sel-input" readonly autocomplete="off" placeholder="单号">
+            <span class="sel-arrow">▾</span>
+            <div class="sel-drop"></div>
+          </div>
+        </div>
+      </div>
+      <div class="field"><label>开票日期从</label><input class="el-input" type="date" value="2026-09-01"></div>
+      <div class="field"><label>至</label><input class="el-input" type="date" value="2026-09-30"></div>
+      <div class="field"><label>核对状态</label><select class="select" id="statusFilter" onchange="applyFilters()"><option value="">全部</option><option value="pending">待核对</option><option value="matched">已核对</option><option value="difference">核对差异</option><option value="missing">未上传发票</option></select></div>
+      <button class="el-button primary" onclick="applyFilters()">查询</button>
+      <button class="el-button" onclick="resetFilters()">重置</button>
+    </div>
+
+    <div class="toolbar-note">
+      <label class="checkbox"><input type="checkbox" class="check" id="checkAll" onclick="toggleAll(this)">全选当前页</label>
+      <span>已选择 <b id="selectedCount">0</b></span>
+    </div>
+
+    <div class="table-wrap">
+      <table class="el-table">
+        <thead>
+          <tr>
+            <th style="width:46px"></th>
+            <th style="width:210px">发票信息</th>
+            <th style="width:150px">发票金额</th>
+            <th style="width:170px">核对状态</th>
+            <th style="width:560px">付款申请信息</th>
+            <th style="width:140px">操作</th>
+          </tr>
+        </thead>
+        <tbody id="invoiceTable"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="emptyTip" style="display:none">暂无数据</div>
+    <div class="pagination"><span>共 <b id="totalCount">0</b> 条</span><span>50 条/页</span><span class="page">1</span><span>跳至</span><input class="el-input" style="width:44px;height:27px" value="1"></div>
+  </div>
+</div>
+
+<div class="modal-mask" id="ruleModal">
+  <div class="modal">
+    <div class="modal-header"><h3>发票与付款申请单核对规则</h3><button class="modal-close" onclick="closeRule()">×</button></div>
+    <div class="rule-list">
+      <div class="rule-item"><div class="rule-num">1</div><div><b>已核对</b><p>发票匹配到 PA + PS 的尾款数据，且识别发票信息与 ERP 信息一致。</p></div></div>
+      <div class="rule-item"><div class="rule-num">2</div><div><b>核对差异</b><p>发票匹配到 PA + PS 的尾款数据，但是识别发票信息与 ERP 信息不一致。</p></div></div>
+      <div class="rule-item"><div class="rule-num">3</div><div><b>未上传发票</b><p>有 PA + PS 的尾款信息，但是没有发票。</p></div></div>
+    </div>
+    <div style="text-align:right"><button class="el-button primary" onclick="closeRule()">我知道了</button></div>
+  </div>
+</div>
+
+<div class="modal-mask" id="uploadModal">
+  <div class="modal" style="width:460px">
+    <div class="modal-header"><h3>上传发票</h3><button class="modal-close" onclick="closeUpload()">×</button></div>
+    <p style="margin:0 0 14px;color:#606266;font-size:12px">请上传与付款申请单匹配的进项发票。</p>
+    <div class="field" style="min-width:auto;margin-top:12px"><label>发票附件</label><input class="el-input" type="file" multiple></div>
+    <div style="text-align:right;margin-top:24px">
+      <button class="el-button" onclick="closeUpload()">取消</button>
+      <button class="el-button primary" style="margin-left:10px" onclick="confirmUpload()">确定上传</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-mask" id="confirmModal">
+  <div class="modal" style="width:420px">
+    <div class="modal-header"><h3>核对确认</h3><button class="modal-close" onclick="closeConfirm()">×</button></div>
+    <p style="margin:8px 0 0;font-size:14px;color:#303133">是否核对一致？</p>
+    <div style="text-align:center;margin-top:28px">
+      <button class="el-button primary" onclick="confirmYes()">是</button>
+      <button class="el-button" style="margin-left:12px" onclick="confirmNo()">否</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const source = [
+  ["2026-09-15","04612039","深圳市利达供应链有限公司","68,000.00","7,823.01","","P02607130137","PS260715007","final","matched"],
+  ["2026-09-14","","","120,000.00","13,805.31","","P02607130138","PS2608100075","final","missing"],
+  ["2026-09-12","04612031","上海数联网络科技有限公司","36,800.00","4,233.63","","P02607130139","PS2608100102","final","matched"],
+  ["2026-09-10","","","57,200.00","6,080.53","","P02607130140","PS2608080037","final","missing"],
+  ["2026-09-07","","","34,900.00","4,015.04","","P02607130143","PS2607300094","final","missing"],
+  ["2026-09-05","04611976","深圳市利达供应链有限公司","74,250.00","8,540.71","","P02607130144","PS2607300045","final","difference"],
+  ["2026-09-04","04611951","北京华讯软件服务合伙企业","18,600.00","2,139.82","","P02607130145","PS2607280063","final","difference"],
+  ["2026-09-03","","","62,800.00","7,224.78","","P02607130146","PS2607270012","final","missing"],
+  ["2026-09-02","04611924","厦门高拓电子科技有限公司","146,208.30","16,820.22","","P02607130147","PS2607250058","final","matched"],
+  ["2026-08-31","04611909","广州远航国际货运代理有限公司","23,760.00","2,733.96","","P02607130148","PS2607200036","progress","matched"],
+  ["2026-08-29","04611871","宁波海隆机械制造有限公司","88,450.00","10,173.89","","P02607130149","PS2607180088","final","difference"],
+  ["2026-08-27","04611830","深圳市拓达科技有限公司","95,700.00","11,008.85","","P02607130150","PS2607150021","final","matched"],
+  ["2026-08-25","04612039","深圳拓达供应链有限公司","21,400.00","2,462.10","","P02607130151","PS2607120019","final","difference"],
+  ["2026-08-23","04611801","深圳市恒信电子有限公司","45,600.00","5,244.30","","P02607130152","PS2607100088","final","pending"],
+  ["2026-08-21","04611788","东莞市力科制造有限公司","83,200.00","9,568.40","","P02607130153","PS2607080066","final","pending"]
+];
+const rows = source.map(x => ({ date:x[0], invoiceNo:x[1], vendor:x[2], amount:x[3], tax:x[4], payNo:x[5], pa:x[6], ps:x[7], type:x[8], status:x[9] }));
+rows.forEach(r => { r.po = r.pa ? "PO" + r.pa.replace(/^P0/, "") : ""; r.pd = r.ps ? "PD" + r.ps.slice(2) : ""; });
+
+const statusLabel = {pending:"待核对", matched:"已核对", difference:"核对差异", missing:"未上传发票"};
+const statusClass = {pending:"status-pending", matched:"status-success", difference:"status-warn", missing:"status-danger"};
+let currentTab = "all";
+
+function updateCounts(){
+  document.getElementById("countAll").textContent = rows.length;
+  document.getElementById("countPending").textContent = rows.filter(r => r.status === "pending").length;
+  document.getElementById("countMatched").textContent = rows.filter(r => r.status === "matched").length;
+  document.getElementById("countDiff").textContent = rows.filter(r => r.status === "difference").length;
+  document.getElementById("countMissing").textContent = rows.filter(r => r.status === "missing").length;
+  document.getElementById("totalCount").textContent = rows.length;
+}
+
+function renderTable(){
+  const invCounts = {};
+  rows.forEach(x=>{ if(x.invoiceNo) invCounts[x.invoiceNo]=(invCounts[x.invoiceNo]||0)+1; });
+  document.getElementById("invoiceTable").innerHTML = rows.map(r=>{
+    const missing = r.status === "missing";
+    const invoiceInfo = missing
+      ? '<span class="sub-line muted">--</span><span class="sub-line muted">--</span>'
+      : '<span class="sub-line"><b class="mono">'+r.invoiceNo+'</b></span><span class="sub-line">'+r.vendor+'</span>';
+    const statusNote = {pending:"待财务人工核对", missing:"缺少发票，需在付款前处理", difference:"识别信息与 ERP 信息不一致", matched:"识别信息与 ERP 信息一致"};
+    const dup = r.status !== "matched" && r.invoiceNo && invCounts[r.invoiceNo] > 1;
+    const dupNote = dup ? '<span class="sub-line dup-warn">发票单号重复</span>' : '';
+    const reconStatus = '<span class="sub-line"><span class="status-dot '+statusClass[r.status]+'">●</span>'+statusLabel[r.status]+'</span><span class="sub-line label">'+statusNote[r.status]+'</span>'+dupNote;
+    const amount = '<span class="sub-line amount mono">¥ '+r.amount+'</span><span class="sub-line label">税额 ¥ '+r.tax+'</span>';
+    const po = r.po || "--";
+    const pd = r.pd || "--";
+    const psku = r.ps ? "PSKU-" + r.ps.slice(-6) : "--";
+    const amountNumber = Number(String(r.amount).replace(/,/g, ""));
+    const contractNormal = Number.isFinite(amountNumber) ? Math.max(1, Math.round(amountNumber / 75)).toLocaleString("en-US") : 1;
+    const contractSpare = Number.isFinite(amountNumber) ? Math.max(0, Math.round(Number(String(contractNormal).replace(/,/g, "")) * 0.12)).toLocaleString("en-US") : 0;
+    const unitPrice = (amountNumber > 0 && (Number(String(contractNormal).replace(/,/g, "")) + Number(String(contractSpare).replace(/,/g, ""))) > 0)
+      ? (amountNumber / (Number(String(contractNormal).replace(/,/g, "")) + Number(String(contractSpare).replace(/,/g, "")))).toFixed(2)
+      : "0.00";
+    const codeRow = (label, value) => value && value !== "--"
+      ? '<div class="doc-code"><span class="doc-code-label">'+label+'</span><a class="doc-link" onclick="toast(\'跳转至 '+label+' '+value+'\')">'+value+'</a></div>'
+      : '<div class="doc-code"><span class="doc-code-label">'+label+'</span><span class="muted">--</span></div>';
+    const qtyLine = (tag, qty) => qty && qty !== "--"
+      ? '<div class="doc-qty-line"><span class="doc-qty-tag">'+tag+'</span><span class="doc-qty-value">'+qty+'*'+unitPrice+'</span></div>'
+      : '<div class="doc-qty-line"><span class="doc-qty-tag">'+tag+'</span><span class="muted">--</span></div>';
+    const payInfo = '<div class="doc-block">'
+      + '<div class="doc-left"><div class="doc-title">单据信息</div>'
+      + codeRow("PA", r.pa)
+      + codeRow("PS", r.ps)
+      + codeRow("PO", po)
+      + codeRow("PD", pd)
+      + '</div>'
+      + '<div class="doc-right">'
+      + '<div class="doc-psku">PSKU：'+psku+'</div>'
+      + '<div class="doc-section"><div class="doc-section-title">合同数量</div>'
+      + qtyLine("正品", contractNormal)
+      + qtyLine("备品", contractSpare)
+      + '</div>'
+      + '<div class="doc-section"><div class="doc-section-title">请款数量</div>'
+      + qtyLine("正品", "0")
+      + qtyLine("备品", "0")
+      + '</div>'
+      + '<div class="doc-amount">应付金额 <b>USD '+r.amount+'</b></div>'
+      + '</div></div>';
+    const checkAction = r.status === "matched"
+      ? ""
+      : '<a class="link" onclick="showConfirm()">核对</a>';
+    const actions = missing
+      ? '<a class="link warn" onclick="showUpload(\''+(r.pa || "")+'\')">上传</a>'
+      : '<a class="link" onclick="toast(\'预览发票 '+r.invoiceNo+'\')">预览</a><a class="link" onclick="toast(\'下载发票 '+r.invoiceNo+'\')">下载</a>'+checkAction;
+    return '<tr data-row data-type="'+r.type+'" data-status="'+r.status+'" data-invoice="'+String(r.invoiceNo||"").toLowerCase()+'" data-vendor="'+String(r.vendor||"").toLowerCase()+'" data-pa="'+String(r.pa||"").toLowerCase()+'" data-ps="'+String(r.ps||"").toLowerCase()+'" data-po="'+String(r.po||"").toLowerCase()+'" data-pd="'+String(r.pd||"").toLowerCase()+'">'+
+      '<td><input type="checkbox" class="check row-check" onchange="updateSelected()"></td>'+
+      '<td><span class="sub-line label">'+r.date+'</span>'+invoiceInfo+'</td>'+
+      '<td>'+amount+'</td>'+
+      '<td>'+reconStatus+'</td>'+
+      '<td>'+payInfo+'</td>'+
+
+      '<td>'+actions+'</td></tr>';
+  }).join("");
+  updateCounts();
+  applyFilters();
+}
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===tab));
+  document.getElementById("statusFilter").value="";
+  document.getElementById("fInvoice").value="";
+  document.getElementById("fVendor").value="";
+  resetSel();
+  applyFilters();
+}
+function applyFilters(){
+  const invoice=(document.getElementById("fInvoice").value||"").trim().toLowerCase();
+  const vendor=(document.getElementById("fVendor").value||"").trim().toLowerCase();
+  const docNo=(selValue("docno")||"").toLowerCase();
+  const docAttr=docType;
+  const status=document.getElementById("statusFilter").value;
+  let visible=0;
+  document.querySelectorAll("#invoiceTable tr[data-row]").forEach(tr=>{
+    let ok=true;
+    if(currentTab==="pending") ok=ok&&tr.dataset.status==="pending";
+    if(currentTab==="matched") ok=ok&&tr.dataset.status==="matched";
+    if(currentTab==="diff") ok=ok&&tr.dataset.status==="difference";
+    if(currentTab==="alert") ok=ok&&tr.dataset.status==="missing";
+    if(invoice&&!(tr.dataset.invoice||"").includes(invoice)) ok=false;
+    if(vendor&&!(tr.dataset.vendor||"").includes(vendor)) ok=false;
+    if(docNo&&!(tr.dataset[docAttr]||"").includes(docNo)) ok=false;
+    if(status&&tr.dataset.status!==status) ok=false;
+    tr.style.display=ok?"":"none"; if(ok) visible++;
+  });
+  document.getElementById("emptyTip").style.display=visible?"none":"";
+  updateSelected();
+}
+function resetFilters(){
+  document.getElementById("fInvoice").value="";
+  document.getElementById("fVendor").value="";
+  resetSel();
+  document.getElementById("statusFilter").value="";
+  currentTab="all";
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab==="all"));
+  applyFilters();
+}
+function toggleAll(check){
+  document.querySelectorAll("#invoiceTable tr[data-row]").forEach(tr=>{
+    if(tr.style.display!=="none"){const c=tr.querySelector(".row-check");if(c)c.checked=check.checked}
+  });
+  updateSelected();
+}
+function updateSelected(){
+  const n=[...document.querySelectorAll("#invoiceTable .row-check:checked")].filter(c=>c.closest("tr").style.display!=="none").length;
+  document.getElementById("selectedCount").textContent=n;
+}
+function exportList(includeInvoices){
+  const n=[...document.querySelectorAll("#invoiceTable .row-check:checked")].filter(c=>c.closest("tr").style.display!=="none").length || 1;
+  toast(includeInvoices ? "已导出列表信息（含发票），共 " + n + " 条（演示）" : "已导出列表信息（不含发票），共 " + n + " 条（演示）");
+}
+function showRule(){document.getElementById("ruleModal").style.display="flex";}
+function closeRule(){document.getElementById("ruleModal").style.display="none";}
+function showConfirm(){document.getElementById("confirmModal").style.display="flex";}
+function closeConfirm(){document.getElementById("confirmModal").style.display="none";}
+function showUpload(pa){document.getElementById("uploadModal").style.display="flex";}
+function closeUpload(){document.getElementById("uploadModal").style.display="none";}
+function confirmUpload(){closeUpload();toast("上传成功（演示）");}
+function confirmYes(){closeConfirm();toast("已核对一致（演示）");}
+function confirmNo(){closeConfirm();toast("已标记为核对差异（演示）");}
+let toastTimer;
+function toast(message){
+  const el=document.getElementById("toast");
+  el.textContent=message;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove("show"),2200);
+}
+const selOptions = {
+  pa: [...new Set(rows.map(r=>r.pa).filter(Boolean))],
+  ps: [...new Set(rows.map(r=>r.ps).filter(Boolean))],
+  po: [...new Set(rows.map(r=>r.po).filter(Boolean))],
+  pd: [...new Set(rows.map(r=>r.pd).filter(Boolean))]
+};
+let docType = "pa";
+const docTypeOptions = [["pa","PA#"],["ps","PS#"],["po","PO#"],["pd","PD#"]];
+function setDocType(t){
+  docType=t;
+  const label=document.getElementById("docTypeLabel");
+  if(label) label.textContent=(docTypeOptions.find(o=>o[0]===t)||[])[1]||t;
+  const dbox=document.querySelector('.sel[data-sel="docno"]');
+  if(dbox){ dbox.dataset.value=""; dbox.querySelector('.sel-input').value=""; }
+  renderDocType();
+}
+function renderDocType(){
+  const drop=document.getElementById("docTypeDrop");
+  if(drop) drop.innerHTML=docTypeOptions.map(o=>'<div class="sel-option'+(docType===o[0]?' selected':'')+'" data-t="'+o[0]+'">'+o[1]+'</div>').join("");
+}
+function selValue(name){
+  const box=document.querySelector('.sel[data-sel="'+name+'"]');
+  return box ? (box.dataset.value||"") : "";
+}
+function resetSel(){
+  document.querySelectorAll('.sel').forEach(box=>{
+    box.dataset.value="";
+    box.querySelector('.sel-input').value="";
+    box.classList.remove("open");
+  });
+  setDocType("pa");
+}
+function renderSel(name){
+  const box=document.querySelector('.sel[data-sel="'+name+'"]');
+  if(!box) return;
+  const drop=box.querySelector('.sel-drop');
+  if(name==="docno"){
+    const list=(selOptions[docType]||[]).filter(Boolean);
+    drop.innerHTML = list.length
+      ? list.map(v=>'<div class="sel-option'+(box.dataset.value===v?' selected':'')+'" data-v="'+v+'">'+v+'</div>').join("")
+      : '<div class="sel-empty">无匹配数据</div>';
+    return;
+  }
+  const kw=(box.querySelector('.sel-input').value||"").trim().toLowerCase();
+  const list=(selOptions[name]||[]).filter(v=>!kw||v.toLowerCase().includes(kw));
+  drop.innerHTML = list.length
+    ? list.map(v=>'<div class="sel-option'+(box.dataset.value===v?' selected':'')+'" data-v="'+v+'">'+v+'</div>').join("")
+    : '<div class="sel-empty">无匹配数据</div>';
+}
+function closeAllSel(except){
+  document.querySelectorAll('.sel.open').forEach(s=>{ if(s!==except) s.classList.remove("open"); });
+  const dType=document.getElementById("docType");
+  if(dType && dType!==except) dType.classList.remove("open");
+}
+document.addEventListener('click', function(e){
+  const t=e.target;
+  const typeOpt=t.closest && t.closest('[data-t]');
+  if(typeOpt){
+    setDocType(typeOpt.dataset.t);
+    const dType=document.getElementById("docType");
+    if(dType) dType.classList.remove("open");
+    applyFilters();
+    return;
+  }
+  const opt=t.closest && t.closest('.sel-option');
+  if(opt){
+    const box=opt.closest('.sel');
+    if(box){ box.dataset.value=opt.dataset.v; box.querySelector('.sel-input').value=opt.dataset.v; renderSel(box.dataset.sel); box.classList.remove('open'); applyFilters(); }
+    return;
+  }
+  const typeBox=t.closest && t.closest('.docno-type');
+  if(typeBox){
+    const wasOpen=typeBox.classList.contains('open');
+    closeAllSel();
+    typeBox.classList.toggle('open', !wasOpen);
+    if(!wasOpen) renderDocType();
+    return;
+  }
+  const box=t.closest && t.closest('.sel');
+  if(box){
+    const name=box.dataset.sel;
+    const wasOpen=box.classList.contains('open');
+    closeAllSel(box);
+    box.classList.toggle('open', !wasOpen);
+    if(!wasOpen) renderSel(name);
+    return;
+  }
+  closeAllSel();
+});
+document.addEventListener('input', function(e){
+  if(e.target.classList && e.target.classList.contains('sel-input')){
+    const box=e.target.closest('.sel');
+    box.dataset.value="";
+    box.classList.add('open');
+    renderSel(box.dataset.sel);
+  }
+});
+renderTable();
+</script>
+</body>
+</html>
