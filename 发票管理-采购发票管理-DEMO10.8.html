@@ -202,8 +202,8 @@ button,input,select{font-family:inherit}
   <div class="modal">
     <div class="modal-header"><h3>发票与付款申请单核对规则</h3><button class="modal-close" onclick="closeRule()">×</button></div>
     <div class="rule-list">
-      <div class="rule-item"><div class="rule-num">1</div><div><b>已核对</b><p>发票匹配到 PA + PS 的尾款数据，且识别发票信息与 ERP 信息一致。</p></div></div>
-      <div class="rule-item"><div class="rule-num">2</div><div><b>核对差异</b><p>发票匹配到 PA + PS 的尾款数据，但是识别发票信息与 ERP 信息不一致。</p></div></div>
+      <div class="rule-item"><div class="rule-num">1</div><div><b>已核对</b><p>发票匹配到 PA + PS 的尾款数据，且发票信息与 ERP 信息一致。</p></div></div>
+      <div class="rule-item"><div class="rule-num">2</div><div><b>核对差异</b><p>发票匹配到 PA + PS 的尾款数据，但是发票信息与 ERP 信息不一致。</p></div></div>
       <div class="rule-item"><div class="rule-num">3</div><div><b>未上传发票</b><p>有 PA + PS 的尾款信息，但是没有发票。</p></div></div>
     </div>
     <div style="text-align:right"><button class="el-button primary" onclick="closeRule()">我知道了</button></div>
@@ -277,7 +277,7 @@ function renderTable(){
     const invoiceInfo = missing
       ? '<span class="sub-line muted">--</span><span class="sub-line muted">--</span>'
       : '<span class="sub-line"><b class="mono">'+r.invoiceNo+'</b></span><span class="sub-line">'+r.vendor+'</span>';
-    const statusNote = {pending:"待财务人工核对", missing:"缺少发票，需在付款前处理", difference:"识别信息与 ERP 信息不一致", matched:"识别信息与 ERP 信息一致"};
+    const statusNote = {pending:"待财务人工核对", missing:"缺少发票，需在付款前处理", difference:"发票信息与 ERP 信息不一致", matched:"发票信息与 ERP 信息一致"};
     const dup = r.status !== "matched" && r.invoiceNo && invCounts[r.invoiceNo] > 1;
     const dupNote = dup ? '<span class="sub-line dup-warn">发票单号重复</span>' : '';
     const reconStatus = '<span class="sub-line"><span class="status-dot '+statusClass[r.status]+'">●</span>'+statusLabel[r.status]+'</span><span class="sub-line label">'+statusNote[r.status]+'</span>'+dupNote;
