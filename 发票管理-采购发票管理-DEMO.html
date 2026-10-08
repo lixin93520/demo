@@ -93,6 +93,7 @@ button,input,select{font-family:inherit}
 .status-warn{color:var(--el-color-warning)}
 .status-danger{color:var(--el-color-danger)}
 .status-success{color:var(--el-color-success)}
+.status-pending{color:var(--el-color-primary)}
 .link{color:var(--el-color-primary);cursor:pointer;font-size:12px;margin-right:10px;white-space:nowrap;text-decoration:none}
 .link:last-child{margin-right:0}
 .link.warn{color:var(--el-color-danger)}
@@ -134,7 +135,7 @@ button,input,select{font-family:inherit}
       <h1 class="page-title">发票管理</h1>
     </div>
     <div class="page-actions">
-      <button class="el-button" onclick="showRule()">查看核对规则</button>
+
       <button class="el-button" onclick="exportList(false)">导出列表信息（不含发票）</button>
       <button class="el-button primary" onclick="exportList(true)">导出列表信息（含发票）</button>
     </div>
@@ -143,6 +144,7 @@ button,input,select{font-family:inherit}
   <div class="panel">
     <div class="tabs">
       <div class="tab active" data-tab="all" onclick="switchTab('all')">全部 <span class="num" id="countAll">0</span></div>
+      <div class="tab" data-tab="pending" onclick="switchTab('pending')">待核对 <span class="num" id="countPending">0</span></div>
       <div class="tab" data-tab="matched" onclick="switchTab('matched')">已核对 <span class="num" id="countMatched">0</span></div>
       <div class="tab" data-tab="diff" onclick="switchTab('diff')">核对差异 <span class="num" id="countDiff">0</span></div>
       <div class="tab warning" data-tab="alert" onclick="switchTab('alert')">未上传发票 <span class="num" id="countMissing">0</span></div>
@@ -166,7 +168,7 @@ button,input,select{font-family:inherit}
       </div>
       <div class="field"><label>开票日期从</label><input class="el-input" type="date" value="2026-09-01"></div>
       <div class="field"><label>至</label><input class="el-input" type="date" value="2026-09-30"></div>
-      <div class="field"><label>核对状态</label><select class="select" id="statusFilter" onchange="applyFilters()"><option value="">全部</option><option value="matched">已核对</option><option value="difference">核对差异</option><option value="missing">未上传发票</option></select></div>
+      <div class="field"><label>核对状态</label><select class="select" id="statusFilter" onchange="applyFilters()"><option value="">全部</option><option value="pending">待核对</option><option value="matched">已核对</option><option value="difference">核对差异</option><option value="missing">未上传发票</option></select></div>
       <button class="el-button primary" onclick="applyFilters()">查询</button>
       <button class="el-button" onclick="resetFilters()">重置</button>
     </div>
@@ -247,17 +249,20 @@ const source = [
   ["2026-08-31","04611909","广州远航国际货运代理有限公司","23,760.00","2,733.96","","P02607130148","PS2607200036","progress","matched"],
   ["2026-08-29","04611871","宁波海隆机械制造有限公司","88,450.00","10,173.89","","P02607130149","PS2607180088","final","difference"],
   ["2026-08-27","04611830","深圳市拓达科技有限公司","95,700.00","11,008.85","","P02607130150","PS2607150021","final","matched"],
-  ["2026-08-25","04612039","深圳拓达供应链有限公司","21,400.00","2,462.10","","P02607130151","PS2607120019","final","difference"]
+  ["2026-08-25","04612039","深圳拓达供应链有限公司","21,400.00","2,462.10","","P02607130151","PS2607120019","final","difference"],
+  ["2026-08-23","04611801","深圳市恒信电子有限公司","45,600.00","5,244.30","","P02607130152","PS2607100088","final","pending"],
+  ["2026-08-21","04611788","东莞市力科制造有限公司","83,200.00","9,568.40","","P02607130153","PS2607080066","final","pending"]
 ];
 const rows = source.map(x => ({ date:x[0], invoiceNo:x[1], vendor:x[2], amount:x[3], tax:x[4], payNo:x[5], pa:x[6], ps:x[7], type:x[8], status:x[9] }));
 rows.forEach(r => { r.po = r.pa ? "PO" + r.pa.replace(/^P0/, "") : ""; r.pd = r.ps ? "PD" + r.ps.slice(2) : ""; });
 
-const statusLabel = {matched:"已核对", difference:"核对差异", missing:"未上传发票"};
-const statusClass = {matched:"status-success", difference:"status-warn", missing:"status-danger"};
+const statusLabel = {pending:"待核对", matched:"已核对", difference:"核对差异", missing:"未上传发票"};
+const statusClass = {pending:"status-pending", matched:"status-success", difference:"status-warn", missing:"status-danger"};
 let currentTab = "all";
 
 function updateCounts(){
   document.getElementById("countAll").textContent = rows.length;
+  document.getElementById("countPending").textContent = rows.filter(r => r.status === "pending").length;
   document.getElementById("countMatched").textContent = rows.filter(r => r.status === "matched").length;
   document.getElementById("countDiff").textContent = rows.filter(r => r.status === "difference").length;
   document.getElementById("countMissing").textContent = rows.filter(r => r.status === "missing").length;
@@ -272,7 +277,7 @@ function renderTable(){
     const invoiceInfo = missing
       ? '<span class="sub-line muted">--</span><span class="sub-line muted">--</span>'
       : '<span class="sub-line"><b class="mono">'+r.invoiceNo+'</b></span><span class="sub-line">'+r.vendor+'</span>';
-    const statusNote = {missing:"缺少发票，需在付款前处理", difference:"识别信息与 ERP 信息不一致", matched:"识别信息与 ERP 信息一致"};
+    const statusNote = {pending:"待财务人工核对", missing:"缺少发票，需在付款前处理", difference:"识别信息与 ERP 信息不一致", matched:"识别信息与 ERP 信息一致"};
     const dup = r.status !== "matched" && r.invoiceNo && invCounts[r.invoiceNo] > 1;
     const dupNote = dup ? '<span class="sub-line dup-warn">发票单号重复</span>' : '';
     const reconStatus = '<span class="sub-line"><span class="status-dot '+statusClass[r.status]+'">●</span>'+statusLabel[r.status]+'</span><span class="sub-line label">'+statusNote[r.status]+'</span>'+dupNote;
@@ -347,6 +352,7 @@ function applyFilters(){
   let visible=0;
   document.querySelectorAll("#invoiceTable tr[data-row]").forEach(tr=>{
     let ok=true;
+    if(currentTab==="pending") ok=ok&&tr.dataset.status==="pending";
     if(currentTab==="matched") ok=ok&&tr.dataset.status==="matched";
     if(currentTab==="diff") ok=ok&&tr.dataset.status==="difference";
     if(currentTab==="alert") ok=ok&&tr.dataset.status==="missing";
